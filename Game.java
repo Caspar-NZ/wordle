@@ -67,6 +67,7 @@ public class Game extends GameEngine {
     private void chooseRandomTargetWord() {
         int index = new Random().nextInt(allowableWords.size());
         targetWord = new ArrayList<>(allowableWords).get(index);
+        targetWord = "KAMES";
         System.out.println("Target word: " + targetWord);
     }
 
@@ -145,8 +146,8 @@ public class Game extends GameEngine {
     private void drawGameReview() {
         changeColor(Color.WHITE);
         int yOffset = 300;
-        for (int i = 0; i < remainingOptionsAfterEachGuess.size() -1; i++) {
-            drawBoldText(20, yOffset + (i * 20), "After guess " + (i + 1) + ": " + remainingOptionsAfterEachGuess.get(i) + " options", "Arial", 20);
+        for (int i = 0; i < remainingOptionsAfterEachGuess.size() - 1; i++) {
+            drawBoldText(20, yOffset + (i * 20), "After guess " + (i + 1) + ": " + remainingOptionsAfterEachGuess.get(i) + " options remained", "Arial", 20);
         }
     }
 
@@ -216,7 +217,6 @@ public class Game extends GameEngine {
         }
     }
 
-
     private void drawKeyboard() {
         String[] rows = {"QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"};
         int startY = 500;
@@ -269,6 +269,10 @@ public class Game extends GameEngine {
             case SUCCESS:
                 handleGameOverKeyPress(event);
                 break;
+        }
+
+        if (event.getKeyCode() == KeyEvent.VK_ESCAPE) {
+            gameState = GameState.MENU;
         }
     }
 
@@ -398,55 +402,87 @@ public class Game extends GameEngine {
             gameOverTimer.start();
         }
     }
-
+// Calculates how many possible words remain after each guess
     private void calculateRemainingOptions() {
         Set<String> remainingOptions = new HashSet<>(allowableWords);
-        for (int i = 0; i <= currentLine; i++) {
-            String guess = new String(letters[i]).trim().toUpperCase();
-            Set<String> validOptions = new HashSet<>();
-            for (String word : remainingOptions) {
-                if (isValidOption(word, guess, boxColors[i])) {
-                    validOptions.add(word);
+        Map<Integer, Set<Character>> possibleLetters = new HashMap<>();
+        Set<Character> knownLetters = new HashSet<>();
+
+        // Initialise possible letters for each position
+        for (int i = 0; i < letterCount; i++) {
+            possibleLetters.put(i, new HashSet<>());
+            for (char c = 'A'; c <= 'Z'; c++) {
+                possibleLetters.get(i).add(c);
+            }
+        }
+
+        // Collect all ruled out letters and required letters with counts
+        for (int line = 0; line <= currentLine; line++) {
+            for (int i = 0; i < letterCount; i++) {
+                char guessChar = letters[line][i];
+                if (boxColors[line][i] == Color.GRAY) {
+                    for (int j = 0; j < letterCount; j++) {
+                        possibleLetters.get(j).remove(guessChar);
+                    }
+                } else {
+                    if (boxColors[line][i] == Color.GREEN) {
+                        possibleLetters.get(i).clear();
+                        possibleLetters.get(i).add(guessChar);
+                    } else if (boxColors[line][i] == Color.YELLOW) {
+                        possibleLetters.get(i).remove(guessChar);
+                        knownLetters.add(guessChar);
+                    }
                 }
             }
-            remainingOptions = validOptions;
         }
-        remainingOptionsAfterEachGuess.add(remainingOptions.size());
-        System.out.println("Remaining options after guess " + (currentLine + 1) + ": " + remainingOptions.size());
+
+        // Filter remaining options based on possible letters for each position and required counts
+        Set<String> validOptions = new HashSet<>();
+        for (String word : remainingOptions) {
+            if (isValidOption(word, possibleLetters, knownLetters)) {
+                validOptions.add(word);
+            }
+        }
+
+        remainingOptionsAfterEachGuess.add(validOptions.size());
+        System.out.println("Remaining options after guess " + (currentLine + 1) + ": " + validOptions.size());
+
+        if (validOptions.size() < 20) {
+            System.out.println("Possible remaining words: " + validOptions);
+        }
+
+        // Debugging: output remaining possible letters for each position
+        for (int i = 0; i < letterCount; i++) {
+            System.out.println("Position " + i + ": " + possibleLetters.get(i));
+        }
+
+        // Update remaining options to be valid options
+        remainingOptions = validOptions;
     }
 
-    private boolean isValidOption(String word, String guess, Color[] feedback) {
-        int[] letterCounts = new int[26];
+    private boolean isValidOption(String word, Map<Integer, Set<Character>> possibleLetters, Set<Character> knownLetters) {
+        int[] wordLetterCounts = new int[26];
         for (char c : word.toCharArray()) {
-            letterCounts[c - 'A']++;
+            wordLetterCounts[c - 'A']++;
         }
 
+        // Check each position for valid letters
         for (int i = 0; i < letterCount; i++) {
-            char guessChar = guess.charAt(i);
-            if (feedback[i] == Color.GREEN) {
-                if (word.charAt(i) != guessChar) {
-                    return false;
-                }
-                letterCounts[guessChar - 'A']--;
+            if (!possibleLetters.get(i).contains(word.charAt(i))) {
+                return false;
             }
         }
 
-        for (int i = 0; i < letterCount; i++) {
-            char guessChar = guess.charAt(i);
-            if (feedback[i] == Color.YELLOW) {
-                if (word.charAt(i) == guessChar || letterCounts[guessChar - 'A'] == 0) {
-                    return false;
-                }
-                letterCounts[guessChar - 'A']--;
-            } else if (feedback[i] == Color.GRAY) {
-                if (word.charAt(i) == guessChar) {
-                    return false;
-                }
+        // Check if word contains all known letters
+        for (char c : knownLetters) {
+            if (wordLetterCounts[c - 'A'] == 0) {
+                return false;
             }
         }
 
         return true;
     }
+
 
     private void startFlipping() {
         isFlippingInProgress = true;
@@ -477,11 +513,4 @@ public class Game extends GameEngine {
         }
         return false;
     }
-
-    public void drawText(double x, double y, String s, Font font) {
-        mGraphics.setFont(font);
-        mGraphics.drawString(s, (int)x, (int)y);
-    }
-
-
 }
