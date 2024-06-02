@@ -38,7 +38,6 @@ public class Game extends GameEngine {
     public void init() {
         setWindowSize(500, 700);
         loadAllowableWords(letterCount);
-        chooseRandomTargetWord();
         Menu.init(this);
     }
 
@@ -58,7 +57,6 @@ public class Game extends GameEngine {
     private void chooseRandomTargetWord() {
         int index = new Random().nextInt(allowableWords.size());
         targetWord = new ArrayList<>(allowableWords).get(index);
-        System.out.println("Target word: " + targetWord);
     }
 
     @Override
@@ -254,19 +252,7 @@ public class Game extends GameEngine {
         }
 
         remainingOptionsAfterEachGuess.add(validOptions.size());
-        System.out.println("Remaining options after guess " + (currentLine + 1) + ": " + validOptions.size());
 
-        if (validOptions.size() < 20) {
-            System.out.println("Possible remaining words: " + validOptions);
-        }
-
-        // Debugging: output remaining possible letters for each position
-        for (int i = 0; i < letterCount; i++) {
-            System.out.println("Position " + i + ": " + possibleLetters.get(i));
-        }
-
-        // Update remaining options to be valid options
-        remainingOptions = validOptions;
     }
 
     private boolean isValidOption(String word, Map<Integer, Set<Character>> possibleLetters, Set<Character> knownLetters) {

@@ -154,7 +154,6 @@ public class GamePlay {
             game.invalidWord = false;
         } else if (event.getKeyCode() == KeyEvent.VK_ENTER && game.currentBox == game.letterCount) {
             String guess = new String(game.letters[game.currentLine]).trim().toUpperCase();
-            System.out.println("Guessed word: " + guess);
             if (game.allowableWords.contains(guess)) {
                 game.invalidWord = false;
                 game.determineBoxColors();
@@ -162,7 +161,6 @@ public class GamePlay {
                 game.calculateRemainingOptions();
             } else {
                 game.invalidWord = true;
-                System.out.println("Invalid guess. Word not found in word list.");
             }
         }
     }

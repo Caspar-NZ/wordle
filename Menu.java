@@ -114,9 +114,10 @@ public class Menu {
     }
 
     public static void drawMenu(Game game) {
-        game.changeBackgroundColor(Color.BLACK);
+        game.changeBackgroundColor(game.black);
         game.clearBackground(game.width(), game.height());
-        game.changeColor(Color.WHITE);
+        game.changeColor(game.white);
+        game.drawCenteredBoldText(game.width() / 2, game.height() / 2 - 160, "Expanded Wordle", "Arial", 40);
         game.drawCenteredBoldText(game.width() / 2, game.height() / 2 - 90, "Press 4 for 4 Letter Words", "Arial", 30);
         game.drawCenteredBoldText(game.width() / 2, game.height() / 2 - 30, "Press 5 for 5 Letter Words", "Arial", 30);
         game.drawCenteredBoldText(game.width() / 2, game.height() / 2 + 30, "Press 6 for 6 Letter Words", "Arial", 30);
