@@ -1016,4 +1016,16 @@ public abstract class GameEngine implements KeyListener, MouseListener, MouseMot
 		// Calculate and return atan2
 		return Math.toDegrees(Math.atan2(x,y));
 	}
+
+	public void drawCenteredBoldText(int x, int y, String text, String fontName, int fontSize) {
+		Font font = new Font(fontName, Font.BOLD, fontSize);
+		FontMetrics metrics = mGraphics.getFontMetrics(font);
+		int textWidth = metrics.stringWidth(text);
+		int textX = x - textWidth / 2;
+		changeFont(font);
+		drawText(textX, y, text, font);
+	}
+
+	private void changeFont(Font font) {
+	}
 }
