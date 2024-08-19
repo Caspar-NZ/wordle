@@ -1,18 +1,3 @@
-# Group 0 - 159261 Assignment 2
-
-### Members
-### Caspar Rollo - 21010371
-### Tiernan De Lacy - 22008375
-### Mitchell Hartland - 22007285
-###
-
-### Resources
-
-Utilising sprite sheet from:
-https://craftpix.net/freebies/free-homeless-character-sprite-sheets-pixel-art/
-
-Word lists generated from: https://people.sc.fsu.edu/~jburkardt/datasets/words/wordlist.txt
-Utilised a python script to get these to 3 txt files with 4 letter, 5 letter and 6 letter words seperated.
 
 ### Overview
 Wordle style game with some added features. Main menu screen has options to play 4, 5, or 6 letter words. Then down the 
